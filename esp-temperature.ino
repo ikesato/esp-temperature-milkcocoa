@@ -10,7 +10,7 @@
 #define BUTTON_PIN 14
 #define DHT_PIN 5
 #define PUSH_INTERVAL (60 * 1000)
-#define ENABLE_SLEEP 0
+#define ENABLE_SLEEP 1
 
 DHT dht(DHT_PIN, DHT11);
 Ticker ticker;
@@ -32,6 +32,8 @@ void deepSleep() {
 }
 
 
+
+
 void pushData() {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
@@ -41,11 +43,13 @@ void pushData() {
         return;
     }
 
-    milkcocoa.loop();
+    !milkcocoa.loop(10*5000);
+    //milkcocoa.loop();
     DataElement elem = DataElement();
     elem.setValue("temperature", t);
     elem.setValue("humidity", h);
     bool ret = milkcocoa.push(MILKCOCOA_DATASTORE, &elem);
+    //milkcocoa.loop();
 
     Serial.print("Pushed to milkcocoa! ret=");
     Serial.println(ret);
@@ -104,6 +108,7 @@ void loop() {
 
 #if ENABLE_SLEEP == 1
     pushData();
+    delay(1000);
     deepSleep();
 #else
     unsigned long now = millis();
